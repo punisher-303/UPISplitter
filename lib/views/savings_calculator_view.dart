@@ -60,12 +60,21 @@ class _SavingsCalculatorViewState extends State<SavingsCalculatorView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header Card
-          NeoPopSurfaceCard(
-            backgroundColor: isDark ? const Color(0xFF131A2E) : const Color(0xFFE8F0FE),
-            borderColor: AppColors.primaryBlue,
-            depth: 4.0,
-            padding: const EdgeInsets.all(18),
-            child: Column(
+          Container(
+  decoration: BoxDecoration(
+    color: isDark ? const Color(0xFF131A2E) : const Color(0xFFE8F0FE),
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: AppColors.primaryBlue, width: 1.5),
+    boxShadow: [
+      BoxShadow(
+        color: isDark ? Colors.black.withAlpha(50) : Colors.black.withAlpha(20),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  ),
+  padding: const EdgeInsets.all(18),
+  child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -103,12 +112,21 @@ class _SavingsCalculatorViewState extends State<SavingsCalculatorView> {
           const SizedBox(height: 14),
 
           // Sliders & Controls Card
-          NeoPopSurfaceCard(
-            backgroundColor: AppColors.cardBg(context),
-            borderColor: AppColors.border(context),
-            depth: 4.0,
-            padding: const EdgeInsets.all(16),
-            child: Column(
+          Container(
+  decoration: BoxDecoration(
+    color: AppColors.cardBg(context),
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: AppColors.border(context), width: 1.5),
+    boxShadow: [
+      BoxShadow(
+        color: isDark ? Colors.black.withAlpha(50) : Colors.black.withAlpha(20),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  ),
+  padding: const EdgeInsets.all(16),
+  child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Monthly Turnover Slider
@@ -213,14 +231,23 @@ class _SavingsCalculatorViewState extends State<SavingsCalculatorView> {
             children: [
               // Loss Box
               Expanded(
-                child: NeoPopSurfaceCard(
-                  backgroundColor: isDark
+                child: Container(
+  decoration: BoxDecoration(
+    color: isDark
                       ? const Color(0xFF251016)
                       : const Color(0xFFFFF0F2),
-                  borderColor: AppColors.alertRed,
-                  depth: 3.0,
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: AppColors.alertRed, width: 1.5),
+    boxShadow: [
+      BoxShadow(
+        color: isDark ? Colors.black.withAlpha(50) : Colors.black.withAlpha(20),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  ),
+  padding: const EdgeInsets.all(14),
+  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -259,14 +286,23 @@ class _SavingsCalculatorViewState extends State<SavingsCalculatorView> {
 
               // UPI Splitter 0% MDR Box
               Expanded(
-                child: NeoPopSurfaceCard(
-                  backgroundColor: isDark
+                child: Container(
+  decoration: BoxDecoration(
+    color: isDark
                       ? const Color(0xFF0C1B2E)
                       : const Color(0xFFF0F7FF),
-                  borderColor: AppColors.primaryBlue,
-                  depth: 3.0,
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: AppColors.primaryBlue, width: 1.5),
+    boxShadow: [
+      BoxShadow(
+        color: isDark ? Colors.black.withAlpha(50) : Colors.black.withAlpha(20),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  ),
+  padding: const EdgeInsets.all(14),
+  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -345,12 +381,21 @@ class _SavingsCalculatorViewState extends State<SavingsCalculatorView> {
           const SizedBox(height: 14),
 
           // Roast Commentary Box
-          NeoPopSurfaceCard(
-            backgroundColor: AppColors.cardBg(context),
-            borderColor: AppColors.goldenYellow,
-            depth: 3.0,
-            padding: const EdgeInsets.all(16),
-            child: Column(
+          Container(
+  decoration: BoxDecoration(
+    color: AppColors.cardBg(context),
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: AppColors.goldenYellow, width: 1.5),
+    boxShadow: [
+      BoxShadow(
+        color: isDark ? Colors.black.withAlpha(50) : Colors.black.withAlpha(20),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  ),
+  padding: const EdgeInsets.all(16),
+  child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(

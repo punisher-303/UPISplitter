@@ -627,11 +627,20 @@ class PosCheckoutViewState extends State<PosCheckoutView> {
 
                 const SizedBox(height: 14),
 
-                // CRED NeoPOP Amount Card
-                NeoPopCard(
-                  color: AppColors.cardBg(context),
-                  borderColor: AppColors.border(context),
-                  depth: 4,
+                // Curved Amount Card (Replaces NeoPopCard for curved corners)
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBg(context),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border(context), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark ? Colors.black.withAlpha(50) : Colors.black.withAlpha(20),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: Stack(
                     children: [
                       // Authentic Banknote Security Watermark (White lining in Dark mode, Electric Blue in Light mode)
@@ -787,7 +796,7 @@ class PosCheckoutViewState extends State<PosCheckoutView> {
                                         child: Row(
                                           children: [
                                             Text(
-                                              preset.title,
+                                              '${preset.title} ₹${IndianNumberFormat.format(preset.amount)}',
                                               style: TextStyle(
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.w900,

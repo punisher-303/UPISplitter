@@ -79,12 +79,21 @@ class _GroupSplitViewState extends State<GroupSplitView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header Card
-          NeoPopSurfaceCard(
-            backgroundColor: AppColors.cardBg(context),
-            borderColor: AppColors.border(context),
-            depth: 4.0,
-            padding: const EdgeInsets.all(16),
-            child: Column(
+          Container(
+  decoration: BoxDecoration(
+    color: AppColors.cardBg(context),
+    borderRadius: BorderRadius.circular(16),
+    border: Border.all(color: AppColors.border(context), width: 1.5),
+    boxShadow: [
+      BoxShadow(
+        color: isDark ? Colors.black.withAlpha(50) : Colors.black.withAlpha(20),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  ),
+  padding: const EdgeInsets.all(16),
+  child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
