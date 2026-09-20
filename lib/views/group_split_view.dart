@@ -66,9 +66,16 @@ class _GroupSplitViewState extends State<GroupSplitView> {
     final order = _groupOrder;
     final isDark = ThemeController.isDark(context);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Column(
+    return Scaffold(
+      backgroundColor: AppColors.bg(context),
+      appBar: AppBar(
+        title: Text(AppStrings.groupBillSplit, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        backgroundColor: AppColors.bg(context),
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header Card
@@ -260,6 +267,7 @@ class _GroupSplitViewState extends State<GroupSplitView> {
             ),
           ],
         ],
+      ),
       ),
     );
   }

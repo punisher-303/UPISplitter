@@ -456,8 +456,15 @@ class PosCheckoutViewState extends State<PosCheckoutView> {
     final isVpaSet = _vpaController.text.trim().isNotEmpty;
     final isDark = ThemeController.isDark(context);
 
-    return Column(
-      children: [
+    return Scaffold(
+      backgroundColor: AppColors.bg(context),
+      appBar: AppBar(
+        title: Text(AppStrings.navPosSplit, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        backgroundColor: AppColors.bg(context),
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
         // Main Scrollable Body
         Expanded(
           child: SingleChildScrollView(
@@ -1223,6 +1230,7 @@ class PosCheckoutViewState extends State<PosCheckoutView> {
           ),
         ),
       ],
+      ),
     );
   }
 }

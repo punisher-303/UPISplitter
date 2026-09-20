@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import '../l10n/app_locale.dart';
-import '../l10n/app_strings.dart';
 import '../theme/app_theme.dart';
-import '../widgets/language_selector_modal.dart';
 import '../widgets/upisplitter_logo.dart';
 import 'group_split_view.dart';
 import 'pos_checkout_view.dart';
@@ -17,7 +14,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
   final GlobalKey<PosCheckoutViewState> _posKey = GlobalKey<PosCheckoutViewState>();
 
   Future<void> _handleTopBarScan() async {
@@ -36,8 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = ThemeController.isDark(context);
-
     return Scaffold(
       backgroundColor: AppColors.bg(context),
       appBar: AppBar(
@@ -45,53 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         title: const UpisplitterLogo(size: 24),
         actions: [
-          // Language Switcher Button
-          ValueListenableBuilder<AppLanguage>(
-            valueListenable: LocaleController.currentLanguage,
-            builder: (context, lang, _) {
-              return InkWell(
-                onTap: () => LanguageSelectorModal.show(context),
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF161820) : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColors.primaryBlue.withAlpha(120),
-                      width: 1.0,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(lang.flag, style: const TextStyle(fontSize: 12)),
-                      const SizedBox(width: 4),
-                      Text(
-                        lang.shortCode,
-                        style: const TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primaryBlue,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            onPressed: _handleTopBarScan,
-            icon: Icon(
-              Icons.qr_code_scanner_rounded,
-              color: AppColors.text(context),
-              size: 22,
-            ),
-            tooltip: 'Scan Merchant QR',
-          ),
           ValueListenableBuilder<ThemeMode>(
             valueListenable: ThemeController.themeMode,
             builder: (context, mode, _) {
@@ -103,89 +50,244 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: dark ? AppColors.goldenYellow : AppColors.primaryBlueDark,
                   size: 22,
                 ),
-                tooltip: dark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
               );
             },
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const DeveloperView()),
-              );
-            },
-            icon: const Icon(Icons.code_rounded, color: AppColors.textSecondary, size: 22),
-            tooltip: 'Developer',
           ),
           IconButton(
             onPressed: () => _showAboutMdrDialog(context),
             icon: const Icon(Icons.info_outline_rounded, color: AppColors.textSecondary, size: 22),
-            tooltip: 'MDR Rules & Guide',
           ),
+          const SizedBox(width: 8),
         ],
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          PosCheckoutView(key: _posKey),
-          const GroupSplitView(),
-          const SavingsCalculatorView(),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF0F0F12) : Colors.white,
-          border: Border(
-            top: BorderSide(
-              color: isDark ? const Color(0xFF202024) : const Color(0xFFE2E8F0),
-              width: 1.0,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Top Header Dashboard Card (Like Paytm)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.primaryBlue, AppColors.primaryBlueDark],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryBlueDark.withAlpha(100),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Welcome to UPISplitter',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    '0% MDR Gateway',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _handleTopBarScan,
+                          icon: const Icon(Icons.qr_code_scanner_rounded, color: AppColors.primaryBlueDark),
+                          label: const Text(
+                            'Scan & Pay',
+                            style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.primaryBlueDark),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(50),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.code_rounded, color: Colors.white),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const DeveloperView()),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
+
+            const SizedBox(height: 32),
+
+            Text(
+              'PAYMENT SERVICES',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.5,
+                color: AppColors.textSub(context),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Services Grid
+            Row(
+              children: [
+                Expanded(
+                  child: _buildServiceCard(
+                    context,
+                    title: 'Smart POS',
+                    subtitle: 'Split bills & save MDR',
+                    icon: Icons.point_of_sale_rounded,
+                    color: AppColors.primaryBlue,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PosCheckoutView(key: _posKey)),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildServiceCard(
+                    context,
+                    title: 'Group Split',
+                    subtitle: 'Split with friends',
+                    icon: Icons.groups_rounded,
+                    color: const Color(0xFFF59E0B),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const GroupSplitView()),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildServiceCard(
+                    context,
+                    title: 'MDR Calculator',
+                    subtitle: 'Check your savings',
+                    icon: Icons.calculate_rounded,
+                    color: const Color(0xFF10B981),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SavingsCalculatorView()),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Container(), // Empty space for symmetry
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+
+            Text(
+              'RECENT ACTIVITY',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.5,
+                color: AppColors.textSub(context),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            _buildRecentActivityMock(context, 'Social Bistro', '₹6,800', '4 Tranches', Icons.restaurant_rounded),
+            const SizedBox(height: 12),
+            _buildRecentActivityMock(context, 'Reliance Smart', '₹4,200', '3 Tranches', Icons.shopping_cart_rounded),
+            
+          ],
         ),
-        child: NavigationBar(
-          selectedIndex: _currentIndex,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          indicatorColor: isDark ? AppColors.blueSurface : const Color(0xFFE8F0FE),
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          onDestinationSelected: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          destinations: [
-            NavigationDestination(
-              icon: Icon(
-                Icons.point_of_sale_outlined,
-                color: AppColors.textSub(context),
-              ),
-              selectedIcon: const Icon(
-                Icons.point_of_sale_rounded,
-                color: AppColors.primaryBlue,
-              ),
-              label: AppStrings.navPosSplit,
+      ),
+    );
+  }
+
+  Widget _buildServiceCard(BuildContext context, {required String title, required String subtitle, required IconData icon, required Color color, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg(context),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border(context)),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black.withAlpha(100) : color.withAlpha(20),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            NavigationDestination(
-              icon: Icon(
-                Icons.group_outlined,
-                color: AppColors.textSub(context),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withAlpha(isDark ? 50 : 30),
+                shape: BoxShape.circle,
               ),
-              selectedIcon: const Icon(
-                Icons.group_rounded,
-                color: AppColors.primaryBlue,
-              ),
-              label: AppStrings.navGroupSplit,
+              child: Icon(icon, color: color, size: 24),
             ),
-            NavigationDestination(
-              icon: Icon(
-                Icons.calculate_outlined,
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: AppColors.text(context),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
                 color: AppColors.textSub(context),
               ),
-              selectedIcon: const Icon(
-                Icons.calculate_rounded,
-                color: AppColors.primaryBlue,
-              ),
-              label: AppStrings.navMdrRoast,
             ),
           ],
         ),
@@ -193,8 +295,62 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildRecentActivityMock(BuildContext context, String title, String amount, String sub, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E1E24) : const Color(0xFFF1F5F9),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: AppColors.text(context), size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.text(context),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  sub,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSub(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            amount,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: AppColors.text(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showAboutMdrDialog(BuildContext context) {
-    final isDark = ThemeController.isDark(context);
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
