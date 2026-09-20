@@ -221,23 +221,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-
-            const SizedBox(height: 32),
-
-            Text(
-              'RECENT ACTIVITY',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                color: AppColors.textSub(context),
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            _buildRecentActivityMock(context, 'Social Bistro', '₹6,800', '4 Tranches', Icons.restaurant_rounded),
-            const SizedBox(height: 12),
-            _buildRecentActivityMock(context, 'Reliance Smart', '₹4,200', '3 Tranches', Icons.shopping_cart_rounded),
             
           ],
         ),
@@ -294,62 +277,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildRecentActivityMock(BuildContext context, String title, String amount, String sub, IconData icon) {
-    final isDark = ThemeController.isDark(context);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg(context),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border(context)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E24) : const Color(0xFFF1F5F9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: AppColors.text(context), size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.text(context),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  sub,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textSub(context),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            amount,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w900,
-              color: AppColors.text(context),
-            ),
-          ),
-        ],
       ),
     );
   }
