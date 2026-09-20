@@ -23,10 +23,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (result != null && mounted) {
-      setState(() {
-        _currentIndex = 0;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PosCheckoutView(key: _posKey)),
+      ).then((_) {
+        _posKey.currentState?.applyScannedData(result);
       });
-      _posKey.currentState?.applyScannedData(result);
     }
   }
 
@@ -244,6 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildServiceCard(BuildContext context, {required String title, required String subtitle, required IconData icon, required Color color, required VoidCallback onTap}) {
+    final isDark = ThemeController.isDark(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -296,6 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRecentActivityMock(BuildContext context, String title, String amount, String sub, IconData icon) {
+    final isDark = ThemeController.isDark(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -351,6 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showAboutMdrDialog(BuildContext context) {
+    final isDark = ThemeController.isDark(context);
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
