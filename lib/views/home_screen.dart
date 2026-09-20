@@ -62,6 +62,29 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
         ],
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: AppColors.cardBg(context),
+        selectedItemColor: AppColors.primaryBlue,
+        unselectedItemColor: AppColors.textSub(context),
+        type: BottomNavigationBarType.fixed,
+        elevation: 10,
+        currentIndex: 0,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner_rounded), label: 'Scan'),
+          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet_rounded), label: 'Wealth'),
+          BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: 'History'),
+        ],
+        onTap: (index) {
+          if (index == 1) {
+            _handleTopBarScan();
+          } else if (index != 0) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Coming soon in next update!')),
+            );
+          }
+        },
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -151,6 +174,43 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 32),
 
             Text(
+              'MONEY TRANSFERS',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.5,
+                color: AppColors.textSub(context),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+              decoration: BoxDecoration(
+                color: AppColors.cardBg(context),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border(context)),
+                boxShadow: [
+                  BoxShadow(
+                    color: ThemeController.isDark(context) ? Colors.black.withAlpha(50) : Colors.black.withAlpha(10),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildQuickAction(context, Icons.person_rounded, 'To Mobile'),
+                  _buildQuickAction(context, Icons.account_balance_rounded, 'To Bank'),
+                  _buildQuickAction(context, Icons.contacts_rounded, 'To Contact'),
+                  _buildQuickAction(context, Icons.account_balance_wallet_rounded, 'Balance'),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            Text(
               'PAYMENT SERVICES',
               style: TextStyle(
                 fontSize: 11,
@@ -161,25 +221,23 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Services Grid
+                        // Services Layout (Professional 1-Full, 2-Half structure)
+            _buildWideServiceCard(
+              context,
+              title: 'Smart POS Checkout',
+              subtitle: 'Accept payments & save 100% on MDR fees',
+              icon: Icons.point_of_sale_rounded,
+              color: AppColors.primaryBlue,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PosCheckoutView(key: _posKey)),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(
-                  child: _buildServiceCard(
-                    context,
-                    title: 'Smart POS',
-                    subtitle: 'Split bills & save MDR',
-                    icon: Icons.point_of_sale_rounded,
-                    color: AppColors.primaryBlue,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PosCheckoutView(key: _posKey)),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
                 Expanded(
                   child: _buildServiceCard(
                     context,
@@ -195,16 +253,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
+                const SizedBox(width: 12),
                 Expanded(
                   child: _buildServiceCard(
                     context,
-                    title: 'MDR Calculator',
-                    subtitle: 'Check your savings',
+                    title: 'Calculator',
+                    subtitle: 'Check savings',
                     icon: Icons.calculate_rounded,
                     color: const Color(0xFF10B981),
                     onTap: () {
@@ -215,13 +269,99 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(), // Empty space for symmetry
-                ),
               ],
             ),
             
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickAction(BuildContext context, IconData icon, String label) {
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coming soon!')));
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.primaryBlue.withAlpha(20),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: AppColors.primaryBlue, size: 24),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.text(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWideServiceCard(BuildContext context, {required String title, required String subtitle, required IconData icon, required Color color, required VoidCallback onTap}) {
+    final isDark = ThemeController.isDark(context);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg(context),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border(context)),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black.withAlpha(100) : color.withAlpha(20),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withAlpha(isDark ? 50 : 30),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.text(context),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSub(context),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 24),
           ],
         ),
       ),
