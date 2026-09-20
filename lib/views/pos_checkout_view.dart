@@ -445,791 +445,234 @@ class PosCheckoutViewState extends State<PosCheckoutView> {
   Widget build(BuildContext context) {
     final order = _currentOrder;
     final amt = IndianNumberFormat.parseAmount(_amountController.text);
-    final baseMdr = (amt <= 2000
-        ? 0.0
-        : (amt * 0.004 > 300 ? 300.0 : amt * 0.004));
+    final baseMdr = (amt <= 2000 ? 0.0 : (amt * 0.004 > 300 ? 300.0 : amt * 0.004));
     final gstFee = baseMdr * 0.18;
     final totalFee = baseMdr + gstFee;
     final standardFee = IndianNumberFormat.formatWithDecimals(totalFee, 2);
-    final baseMdrStr = IndianNumberFormat.formatWithDecimals(baseMdr, 2);
-    final gstStr = IndianNumberFormat.formatWithDecimals(gstFee, 2);
     final isVpaSet = _vpaController.text.trim().isNotEmpty;
     final isDark = ThemeController.isDark(context);
 
     return Scaffold(
       backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        title: Text(AppStrings.navPosSplit, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        title: const Text('Smart POS Checkout', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
         backgroundColor: AppColors.bg(context),
         elevation: 0,
+        centerTitle: true,
       ),
       body: Column(
         children: [
-        // Main Scrollable Body
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Soundbox Live Broadcast Bar
-                if (_soundboxAnnouncement != null) ...[
-                  SoundboxSpeakerWidget(
-                    announcementText: _soundboxAnnouncement,
-                    isPlaying: order?.isFullyPaid ?? false,
-                  ),
-                  const SizedBox(height: 12),
-                ],
-
-                // CRED NeoPOP Merchant Bar (Tap to Enter / Change UPI ID)
-                NeoPopCard(
-                  color: isVpaSet
-                      ? AppColors.cardBg(context)
-                      : (isDark
-                            ? const Color(0xFF14151B)
-                            : AppColors.lightSurfaceElevated),
-                  borderColor: isVpaSet
-                      ? AppColors.border(context)
-                      : AppColors.primaryBlue,
-                  depth: 3,
-                  child: InkWell(
-                    onTap: _showUpiInputDialog,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? Colors.black
-                                  : const Color(0xFFE2E8F0),
-                              border: Border.all(
-                                color: isVpaSet
-                                    ? AppColors.primaryBlue
-                                    : AppColors.goldenYellow,
-                                width: 1.0,
-                              ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Sleek Modern Amount Input
+                  Center(
+                    child: Column(
+                      children: [
+                        Text('AMOUNT TO PAY', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.5, color: AppColors.textSub(context))),
+                        const SizedBox(height: 12),
+                        IntrinsicWidth(
+                          child: TextField(
+                            controller: _amountController,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: AppColors.text(context), letterSpacing: -1.0),
+                            decoration: const InputDecoration(
+                              prefixText: '₹ ',
+                              prefixStyle: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: AppColors.primaryBlue),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
                             ),
-                            child: Icon(
-                              isVpaSet
-                                  ? Icons.storefront_sharp
-                                  : Icons.add_link_rounded,
-                              size: 16,
-                              color: isVpaSet
-                                  ? AppColors.primaryBlue
-                                  : AppColors.goldenYellow,
-                            ),
+                            onChanged: (v) => _recalculateOrder(),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  isVpaSet
-                                      ? AppStrings.payingToUpiId
-                                      : AppStrings.merchantUpiIdRequired,
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1.2,
-                                    color: isVpaSet
-                                        ? AppColors.textSub(context)
-                                        : AppColors.primaryBlue,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  isVpaSet
-                                      ? '${_nameController.text.toUpperCase()} (${_vpaController.text})'
-                                      : AppStrings.tapToSetUpiId,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w900,
-                                    color: isVpaSet
-                                        ? AppColors.text(context)
-                                        : AppColors.goldenYellow,
-                                    letterSpacing: 0.5,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                if (isVpaSet) ...[
-                                  Builder(
-                                    builder: (context) {
-                                      final val = UpiValidator.validate(
-                                        _vpaController.text,
-                                      );
-                                      if (val.issuerLabel != null) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 2,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.verified_outlined,
-                                                size: 11,
-                                                color: AppColors.primaryBlue,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                val.issuerLabel!,
-                                                style: const TextStyle(
-                                                  fontSize: 9,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: AppColors.primaryBlue,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                      return const SizedBox.shrink();
-                                    },
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
+                        ),
+                        if (amt > 2000)
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
+                            margin: const EdgeInsets.only(top: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
-                              color: isDark
-                                  ? Colors.black
-                                  : const Color(0xFFE2E8F0),
-                              border: Border.all(
-                                color: AppColors.border(context),
-                              ),
+                              color: AppColors.alertRed.withAlpha(20),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.alertRed.withAlpha(50)),
                             ),
                             child: Text(
-                              isVpaSet ? 'EDIT ▾' : AppStrings.btnEnter,
-                              style: TextStyle(
-                                color: AppColors.text(context),
-                                fontSize: 9,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 0.8,
-                              ),
+                              'Saves ₹$standardFee in MDR',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.alertRed),
                             ),
                           ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 14),
+                  const SizedBox(height: 32),
 
-                // CRED NeoPOP Amount Card
-                NeoPopCard(
-                  color: AppColors.cardBg(context),
-                  borderColor: AppColors.border(context),
-                  depth: 4,
-                  child: Stack(
-                    children: [
-                      // Authentic Banknote Security Watermark (White lining in Dark mode, Electric Blue in Light mode)
-                      Positioned(
-                        right: -5,
-                        top: -5,
-                        bottom: 25,
-                        child: IgnorePointer(
-                          child: ShaderMask(
-                            shaderCallback: (rect) {
-                              return RadialGradient(
-                                center: Alignment.center,
-                                radius: 0.85,
-                                colors: [
-                                  Colors.white.withAlpha(isDark ? 56 : 66),
-                                  Colors.transparent,
-                                ],
-                                stops: const [0.6, 1.0],
-                              ).createShader(rect);
+                  // Pill Presets (Horizontal Scroll)
+                  SizedBox(
+                    height: 36,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _kiranaPresets.length,
+                      itemBuilder: (context, index) {
+                        final preset = _kiranaPresets[index];
+                        final isSelected = _selectedPresetTitle == preset.title;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                _selectedPresetTitle = preset.title;
+                                _amountController.text = preset.amount.toInt().toString();
+                              });
+                              _recalculateOrder();
                             },
-                            blendMode: BlendMode.dstIn,
-                            child: Image.asset(
-                              'assets/images/gandhi_currency.png',
-                              color: isDark
-                                  ? Colors.white
-                                  : AppColors.primaryBlue,
-                              colorBlendMode: BlendMode.srcIn,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  AppStrings.totalBillAmount,
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1.5,
-                                    color: AppColors.textSub(context),
-                                  ),
-                                ),
-                                Text(
-                                  AppStrings.npciCap,
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.primaryBlue,
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '₹',
-                                  style: TextStyle(
-                                    fontSize: 38,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.text(context),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _amountController,
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: [
-                                      IndianCurrencyInputFormatter(
-                                        allowDecimals: true,
-                                      ),
-                                    ],
-                                    style: TextStyle(
-                                      fontSize: 38,
-                                      fontWeight: FontWeight.w900,
-                                      color: AppColors.text(context),
-                                      letterSpacing: -1.0,
-                                    ),
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.zero,
-                                      hintText: '0',
-                                      hintStyle: TextStyle(
-                                        color: isDark
-                                            ? const Color(0xFF383B46)
-                                            : const Color(0xFFCBD5E1),
-                                      ),
-                                    ),
-                                    onChanged: (_) {
-                                      _selectedPresetTitle =
-                                          AppStrings.customBill;
-                                      _recalculateOrder();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 14),
-
-                            // CRED NeoPOP Preset Buttons
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: _kiranaPresets.map((preset) {
-                                  final currentVal =
-                                      IndianNumberFormat.parseAmount(
-                                        _amountController.text,
-                                      );
-                                  final isSelected =
-                                      currentVal == preset.amount;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: NeoPopButton(
-                                      color: isSelected
-                                          ? (isDark
-                                                ? Colors.white
-                                                : AppColors.primaryBlue)
-                                          : AppColors.cardElevated(context),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? (isDark
-                                                  ? Colors.white
-                                                  : AppColors.primaryBlue)
-                                            : AppColors.border(context),
-                                        width: 1.2,
-                                      ),
-                                      depth: 2,
-                                      onTapUp: () {
-                                        _amountController.text =
-                                            IndianNumberFormat.format(
-                                              preset.amount,
-                                            );
-                                        _selectedPresetTitle = preset.title;
-                                        _recalculateOrder();
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 8,
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              preset.title,
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w900,
-                                                letterSpacing: 0.5,
-                                                color: isSelected
-                                                    ? (isDark
-                                                          ? Colors.black
-                                                          : Colors.white)
-                                                    : AppColors.text(context),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              '₹${IndianNumberFormat.format(preset.amount)}',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w900,
-                                                color: isSelected
-                                                    ? (isDark
-                                                          ? Colors.black
-                                                          : Colors.white)
-                                                    : AppColors.primaryBlue,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                            borderRadius: BorderRadius.circular(18),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: isSelected ? AppColors.primaryBlue : (isDark ? const Color(0xFF1E1E24) : const Color(0xFFF1F5F9)),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(color: isSelected ? AppColors.primaryBlue : AppColors.border(context)),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 14),
-
-                // CRED NeoPOP Arbitrage Shield Card
-                NeoPopCard(
-                  color: isDark
-                      ? const Color(0xFF0F1014)
-                      : AppColors.cardBg(context),
-                  borderColor: AppColors.border(context),
-                  depth: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              AppStrings.arbitrageBreakdown,
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.2,
-                                color: AppColors.textSub(context),
-                              ),
-                            ),
-                            Text(
-                              AppStrings.zeroMdrPolicy,
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.8,
-                                color: isDark
-                                    ? AppColors.textMuted
-                                    : AppColors.lightTextMuted,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Colors.black
-                                      : const Color(0xFFF8FAFC),
-                                  border: Border.all(
-                                    color: AppColors.border(context),
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      AppStrings.regularGpay,
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w800,
-                                        color: isDark
-                                            ? AppColors.textMuted
-                                            : AppColors.lightTextMuted,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Text(
-                                      '+₹$standardFee ${AppStrings.feeTag}',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppColors.alertRed,
-                                      ),
-                                    ),
-                                    Text(
-                                      AppStrings.regularMdrDesc,
-                                      style: TextStyle(
-                                        fontSize: 7.5,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark
-                                            ? AppColors.textMuted
-                                            : AppColors.lightTextMuted,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Colors.black
-                                      : const Color(0xFFF0F7FF),
-                                  border: Border.all(
-                                    color: AppColors.primaryBlue,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      AppStrings.upisplitterZeroMdr,
-                                      style: const TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.primaryBlue,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Text(
-                                      AppStrings.free100Percent,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppColors.primaryBlue,
-                                      ),
-                                    ),
-                                    Text(
-                                      AppStrings.zeroMdrGstDesc,
-                                      style: TextStyle(
-                                        fontSize: 7.5,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.primaryBlue.withAlpha(
-                                          200,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          color: AppColors.chipBg(context),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 30,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isDark
-                                      ? AppColors.blueSurface
-                                      : const Color(0xFFE8F0FE),
-                                  border: Border.all(
-                                    color: AppColors.primaryBlue.withAlpha(160),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.savings_outlined,
-                                    size: 16,
-                                    color: AppColors.primaryBlue,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      AppStrings.gandhisSaved,
-                                      style: TextStyle(
-                                        fontSize: 9.5,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 0.8,
-                                        color: AppColors.text(context),
-                                      ),
-                                    ),
-                                    Text(
-                                      amt <= 2000
-                                          ? AppStrings.under2000Free
-                                          : AppStrings.savingsDesc(
-                                              baseMdrStr,
-                                              gstStr,
-                                            ),
-                                      style: TextStyle(
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark
-                                            ? AppColors.textMuted
-                                            : AppColors.lightTextMuted,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                '+₹$standardFee',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.primaryBlue,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (order != null && order.tranches.length > 1) ...[
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                AppStrings.dynamicTranches,
+                              child: Text(
+                                preset.title,
                                 style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.0,
-                                  color: AppColors.textSub(context),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelected ? Colors.white : AppColors.text(context),
                                 ),
                               ),
-                              InkWell(
-                                onTap: _recalculateOrder,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: isDark ? Colors.black : Colors.white,
-                                    border: Border.all(
-                                      color: AppColors.primaryBlue,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Text(
-                                        '🎲',
-                                        style: TextStyle(fontSize: 10),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        AppStrings.reRoll,
-                                        style: const TextStyle(
-                                          fontSize: 8.5,
-                                          fontWeight: FontWeight.w900,
-                                          color: AppColors.primaryBlue,
-                                          letterSpacing: 0.8,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                          const SizedBox(height: 6),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: order.tranches.map((t) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? const Color(0xFF14151B)
-                                      : const Color(0xFFF1F5F9),
-                                  border: Border.all(
-                                    color: AppColors.border(context),
-                                  ),
-                                ),
-                                child: Text(
-                                  '#${t.index}: ₹${IndianNumberFormat.format(t.amount)}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.text(context),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ],
+                        );
+                      },
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 12),
+                  const SizedBox(height: 32),
 
-                // Educational Disclaimer Pill
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
+                  // Beautiful Merchant VPA Card
+                  Container(
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF141418)
-                          : const Color(0xFFEDF2F7),
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF26262E)
-                            : const Color(0xFFE2E8F0),
-                      ),
+                      color: AppColors.cardBg(context),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border(context)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDark ? Colors.black.withAlpha(100) : Colors.black.withAlpha(10),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
+                    padding: const EdgeInsets.all(16),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('⚖️', style: TextStyle(fontSize: 10)),
-                        const SizedBox(width: 6),
-                        Text(
-                          AppStrings.educationalDisclaimer,
-                          style: const TextStyle(
-                            fontSize: 8.5,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
-                            color: AppColors.textMuted,
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(color: AppColors.primaryBlue.withAlpha(20), shape: BoxShape.circle),
+                          child: const Icon(Icons.storefront_rounded, color: AppColors.primaryBlue, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: _showUpiInputDialog,
+                            child: Container(
+                              color: Colors.transparent,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    isVpaSet ? _nameController.text.isNotEmpty ? _nameController.text : 'Unknown Merchant' : 'Tap to add Merchant',
+                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.text(context)),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    isVpaSet ? _vpaController.text : 'No UPI ID specified',
+                                    style: TextStyle(fontSize: 12, color: AppColors.textSub(context)),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit_rounded, color: AppColors.primaryBlue),
+                          onPressed: _showUpiInputDialog,
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
 
-        // STICKY CRED NEOPOP 3D PRIMARY CTA (Official CRED NeoPopTiltedButton)
-        Container(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          decoration: BoxDecoration(
-            color: AppColors.bg(context),
-            border: Border(
-              top: BorderSide(color: AppColors.border(context), width: 1.0),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    import_prank.PrankVideoDialog.show(context);
-                  },
-                  icon: const Icon(Icons.card_giftcard, color: Colors.yellow),
-                  label: const Text(
-                    'Thankyou from Dev',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.yellow,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red[900],
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              NeoPopTiltedButton(
-                isFloating: true,
-                onTapUp: _openCheckoutDialog,
-                decoration: const NeoPopTiltedButtonDecoration(
-                  color: AppColors.primaryBlue,
-                  plunkColor: AppColors.primaryBlueDark,
-                  shadowColor: Color(0xFF003C8F),
-                  showShimmer: true,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Center(
-                    child: Text(
-                      isVpaSet
-                          ? (amt <= 2000
-                                ? AppStrings.enterUpiId
-                                : AppStrings.bypassFeePayUpi(standardFee))
-                          : AppStrings.enterUpiId,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.0,
-                        color: Colors.white,
+                  const SizedBox(height: 32),
+
+                  // Prank Button (Kept Intact)
+                  Align(
+                    alignment: Alignment.center,
+                    child: InkWell(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const import_prank.PrankVideoDialog(),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF2E1313) : const Color(0xFFFFF0F0),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.alertRed.withAlpha(100)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('🎁', style: TextStyle(fontSize: 14)),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Get fre 500 RS',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.alertRed,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+
+          // Fixed Bottom Bar
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.cardBg(context),
+              border: Border(top: BorderSide(color: AppColors.border(context), width: 1.5)),
+            ),
+            child: SafeArea(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isVpaSet ? AppColors.primaryBlue : AppColors.primaryBlue.withAlpha(100),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size.fromHeight(50),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: isVpaSet && amt > 0 ? _openCheckoutDialog : null,
+                child: Text(
+                  isVpaSet ? (amt <= 2000 ? 'PAY ₹$amt' : 'PROCESS BILL (0% MDR)') : 'ENTER UPI ID',
+                  style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.0),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }

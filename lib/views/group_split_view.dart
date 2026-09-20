@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:neopop/neopop.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/app_strings.dart';
 import '../models/split_order.dart';
@@ -37,7 +36,10 @@ class _GroupSplitViewState extends State<GroupSplitView> {
 
   void _recalculateGroup() {
     final amt = IndianNumberFormat.parseAmount(_amountController.text);
-    if (amt <= 0) return;
+    if (amt <= 0) {
+      setState(() => _groupOrder = null);
+      return;
+    }
 
     setState(() {
       _groupOrder = SplitEngine.createGroupSplitOrder(
@@ -54,10 +56,7 @@ class _GroupSplitViewState extends State<GroupSplitView> {
     if (_groupOrder == null) return;
     final perPerson = IndianNumberFormat.formatWithDecimals(_groupOrder!.totalAmount / _peopleCount, 2);
     final totalFormatted = IndianNumberFormat.format(_groupOrder!.totalAmount);
-    final msg = '🍻 Dinner Bill Split on UPI Splitter (0% MDR)!\n'
-        'Total: ₹$totalFormatted | Friends: $_peopleCount\n'
-        'Share per person: ₹$perPerson\n\n'
-        'Pay your share directly via UPI without any surcharge!';
+    final msg = '🍻 Dinner Bill Split on UPI Splitter (0% MDR)!\nTotal: ₹$totalFormatted | Friends: $_peopleCount\nShare per person: ₹$perPerson\n\nPay your share directly via UPI without any surcharge!';
     SharePlus.instance.share(ShareParams(text: msg));
   }
 
@@ -69,205 +68,185 @@ class _GroupSplitViewState extends State<GroupSplitView> {
     return Scaffold(
       backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        title: Text(AppStrings.groupBillSplit, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        title: Text(AppStrings.groupBillSplit, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
         backgroundColor: AppColors.bg(context),
         elevation: 0,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header Card
-          NeoPopSurfaceCard(
-            backgroundColor: AppColors.cardBg(context),
-            borderColor: AppColors.border(context),
-            depth: 4.0,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.groups_rounded, color: AppColors.primaryBlue, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      AppStrings.groupBillSplit,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.1,
-                        color: AppColors.primaryBlue,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Amount
-                Row(
-                  children: [
-                    Text(
-                      '₹',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.text(context),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _amountController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          IndianCurrencyInputFormatter(allowDecimals: true),
-                        ],
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.text(context),
-                        ),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '0.00',
-                          hintStyle: TextStyle(
-                            color: isDark ? const Color(0xFF383B46) : const Color(0xFFCBD5E1),
-                          ),
-                        ),
-                        onChanged: (_) => _recalculateGroup(),
-                        onSubmitted: (_) => _recalculateGroup(),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 14),
-
-                // People Count Selector
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      AppStrings.numberOfFriends,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.0,
-                        color: AppColors.textSub(context),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        NeoPopButton(
-                          color: isDark ? const Color(0xFF1E1E22) : const Color(0xFFE2E8F0),
-                          bottomShadowColor: isDark ? Colors.black : const Color(0xFFCBD5E1),
-                          rightShadowColor: isDark ? Colors.black : const Color(0xFFCBD5E1),
-                          depth: 2.0,
-                          border: Border.all(color: AppColors.border(context), width: 1.2),
-                          onTapUp: () {
-                            if (_peopleCount > 2) {
-                              setState(() {
-                                _peopleCount--;
-                                _recalculateGroup();
-                              });
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Icon(Icons.remove, size: 16, color: AppColors.text(context)),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          margin: const EdgeInsets.symmetric(horizontal: 6),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF18181B) : const Color(0xFFF1F5F9),
-                            border: Border.all(color: AppColors.border(context), width: 1.2),
-                          ),
-                          child: Text(
-                            '$_peopleCount',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.primaryBlue,
-                            ),
-                          ),
-                        ),
-                        NeoPopButton(
-                          color: isDark ? const Color(0xFF1E1E22) : const Color(0xFFE2E8F0),
-                          bottomShadowColor: isDark ? Colors.black : const Color(0xFFCBD5E1),
-                          rightShadowColor: isDark ? Colors.black : const Color(0xFFCBD5E1),
-                          depth: 2.0,
-                          border: Border.all(color: AppColors.border(context), width: 1.2),
-                          onTapUp: () {
-                            if (_peopleCount < 50) {
-                              setState(() {
-                                _peopleCount++;
-                                _recalculateGroup();
-                              });
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Icon(Icons.add, size: 16, color: AppColors.text(context)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 14),
-
-          // Quick Share WhatsApp Button
-          NeoPopActionButton(
-            text: AppStrings.shareOnWhatsapp,
-            color: AppColors.primaryBlue,
-            textColor: Colors.white,
-            prefixIcon: const Icon(Icons.share_rounded, color: Colors.white, size: 16),
-            onTap: _shareAllViaWhatsApp,
-          ),
-
-          const SizedBox(height: 16),
-
-          if (order != null) ...[
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // SPLIT SETUP HUB
             Text(
-              'INDIVIDUAL SHARES (${order.tranches.length})',
+              'SPLIT SETUP',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
+                letterSpacing: 1.5,
                 color: AppColors.textSub(context),
               ),
             ),
-            const SizedBox(height: 10),
-
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: order.tranches.length,
-              itemBuilder: (context, index) {
-                final tranche = order.tranches[index];
-                return QrTrancheCard(
-                  tranche: tranche,
-                  totalTranches: order.tranches.length,
-                  isCurrentActive: !tranche.isPaid && index == 0,
-                  onSimulatePayment: () {
-                    setState(() {
-                      tranche.status = TrancheStatus.paid;
-                      tranche.paidAt = DateTime.now();
-                    });
-                  },
-                );
-              },
+            const SizedBox(height: 12),
+            
+            Row(
+              children: [
+                // Total Bill Card
+                Expanded(
+                  flex: 3,
+                  child: NeoPopSurfaceCard(
+                    backgroundColor: AppColors.cardBg(context),
+                    borderColor: AppColors.primaryBlue,
+                    depth: 4.0,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Total Bill', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.textSub(context))),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _amountController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            prefixText: '₹ ',
+                            border: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primaryBlue)),
+                          ),
+                          onChanged: (_) => _recalculateGroup(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // People Slider Card
+                Expanded(
+                  flex: 2,
+                  child: NeoPopSurfaceCard(
+                    backgroundColor: AppColors.cardBg(context),
+                    borderColor: const Color(0xFFF59E0B),
+                    depth: 4.0,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text('Friends', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.textSub(context))),
+                        const SizedBox(height: 8),
+                        Text(
+                          '$_peopleCount',
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFFF59E0B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
+            const SizedBox(height: 12),
+            // Slider outside for friends
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                activeTrackColor: const Color(0xFFF59E0B),
+                thumbColor: const Color(0xFFF59E0B),
+                inactiveTrackColor: isDark ? const Color(0xFF27272A) : const Color(0xFFE2E8F0),
+                trackHeight: 6,
+              ),
+              child: Slider(
+                value: _peopleCount.toDouble(),
+                min: 2,
+                max: 50,
+                divisions: 48,
+                onChanged: (val) {
+                  setState(() {
+                    _peopleCount = val.toInt();
+                  });
+                  _recalculateGroup();
+                },
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            if (order != null && order.totalAmount > 0) ...[
+              // Summary Pop-out
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [const Color(0xFFF59E0B), const Color(0xFFD97706)],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(color: const Color(0xFFF59E0B).withAlpha(100), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Share per person', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 4),
+                        Text(
+                          '₹${IndianNumberFormat.formatWithDecimals(order.totalAmount / _peopleCount, 2)}',
+                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(50),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.share_rounded, color: Colors.white),
+                        onPressed: _shareAllViaWhatsApp,
+                        tooltip: 'Share on WhatsApp',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+              Text(
+                'COLLECTION TRANCHES',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                  color: AppColors.textSub(context),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: order.tranches.length,
+                itemBuilder: (context, index) {
+                  final tranche = order.tranches[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: QrTrancheCard(
+                      tranche: tranche,
+                      totalTranches: order.tranches.length,
+                      isCurrentActive: !tranche.isPaid && index == 0,
+                      onSimulatePayment: () {
+                        setState(() {
+                          tranche.status = TrancheStatus.paid;
+                          tranche.paidAt = DateTime.now();
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 40),
+            ],
           ],
-        ],
-      ),
+        ),
       ),
     );
   }
