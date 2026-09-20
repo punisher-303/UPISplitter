@@ -1,4 +1,4 @@
-name: Deploy SplitPe Web to GitHub Pages
+name: Deploy UPISplitter Web to GitHub Pages
 
 on:
   push:
@@ -44,7 +44,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Web
-        run: flutter build web --release --base-href "/SplitPe/"
+        run: flutter build web --release --base-href "/UPISplitter/"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
