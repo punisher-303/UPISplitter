@@ -13,10 +13,7 @@ class DeveloperView extends StatelessWidget {
         elevation: 0,
         title: const Text(
           'Developer',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -29,7 +26,10 @@ class DeveloperView extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.white24, width: 1),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 32.0,
+              horizontal: 24.0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -42,7 +42,7 @@ class DeveloperView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Anand',
+                  'Ghost',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -69,11 +69,17 @@ class DeveloperView extends StatelessWidget {
                   icon: const Icon(Icons.code, color: Colors.black),
                   label: const Text(
                     'View GitHub',
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),

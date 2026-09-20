@@ -22,11 +22,11 @@ void main() {
     });
 
     test('Validates standalone plain VPA string', () {
-      const raw = 'Anand@okaxis';
+      const raw = 'Ghost@okaxis';
       final result = UpiValidator.validate(raw);
 
       expect(result.isValid, isTrue);
-      expect(result.vpa, 'Anand@okaxis');
+      expect(result.vpa, 'Ghost@okaxis');
       expect(result.issuingApp, 'Google Pay');
       expect(result.issuingBank, 'Axis Bank');
     });
@@ -69,18 +69,23 @@ void main() {
       expect(whatsapp.issuingApp, 'WhatsApp Pay');
     });
 
-    test('Accepts valid future/unlisted handles gracefully via universal regex', () {
-      final unlisted = UpiValidator.validate('vendor@futuristicbank');
-      expect(unlisted.isValid, isTrue);
-      expect(unlisted.vpa, 'vendor@futuristicbank');
-      expect(unlisted.issuingApp, isNull);
-      expect(unlisted.issuingBank, isNull);
-    });
+    test(
+      'Accepts valid future/unlisted handles gracefully via universal regex',
+      () {
+        final unlisted = UpiValidator.validate('vendor@futuristicbank');
+        expect(unlisted.isValid, isTrue);
+        expect(unlisted.vpa, 'vendor@futuristicbank');
+        expect(unlisted.issuingApp, isNull);
+        expect(unlisted.issuingBank, isNull);
+      },
+    );
   });
 
   group('UpiValidator - Security, Injection & Malformed Attacks', () {
     test('Rejects arbitrary non-UPI phishing URLs', () {
-      final phishing = UpiValidator.validate('https://malicious-login-phishing.com/account');
+      final phishing = UpiValidator.validate(
+        'https://malicious-login-phishing.com/account',
+      );
       expect(phishing.isValid, isFalse);
       expect(phishing.errorMessage, contains('Invalid'));
     });

@@ -85,5 +85,5 @@ flutter run
   <a href="mailto:anandpm224@gmail.com">Email (anandpm224@gmail.com)</a> • 
   <a href="https://github.com/punisher-303">GitHub (punisher-303)</a>
   <br><br>
-  <sub>Built with ⚡ by Anand</sub>
+  <sub>Built with ⚡ by Ghost</sub>
 </div>
