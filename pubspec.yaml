@@ -57,6 +57,11 @@ flutter_launcher_icons:
   image_path: "assets/images/logo_padded_small.png"
   min_sdk_android: 21
   adaptive_icon_background: "#FFFFFF"
+  web:
+    generate: true
+    image_path: "assets/images/logo_padded_small.png"
+    background_color: "#FFFFFF"
+    theme_color: "#FFFFFF"
   adaptive_icon_foreground: "assets/images/logo_padded_small.png"
 
 # For information on the generic Dart part of this file, see the
